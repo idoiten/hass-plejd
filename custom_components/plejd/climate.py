@@ -14,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.const import UnitOfTemperature
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity
+from .plejd_entity import PlejdDeviceBaseEntity, plejd_command
 
 
 async def async_setup_entry(
@@ -69,9 +69,11 @@ class PlejdClimate(PlejdDeviceBaseEntity, ClimateEntity):
     def is_on(self) -> bool:
         return not self._data.get("mode", 7) == dt.PlejdThermostat.MODE_SERVICE
 
+    @plejd_command
     async def async_turn_on(self):
         await self.device.turn_on()
 
+    @plejd_command
     async def async_turn_off(self):
         await self.device.turn_off()
 
@@ -87,6 +89,7 @@ class PlejdClimate(PlejdDeviceBaseEntity, ClimateEntity):
     def hvac_mode(self) -> HVACMode:
         return HVACMode.HEAT if self.is_on else HVACMode.OFF
 
+    @plejd_command
     async def async_set_hvac_mode(self, hvac_mode):
         if hvac_mode == HVACMode.HEAT:
             await self.async_turn_on()
@@ -101,6 +104,7 @@ class PlejdClimate(PlejdDeviceBaseEntity, ClimateEntity):
     def current_temperature(self) -> float:
         return self._data.get("current", None)
 
+    @plejd_command
     async def async_set_temperature(self, **kwargs):
         if ATTR_TEMPERATURE in kwargs:
             await self.device.set_target_temp(kwargs[ATTR_TEMPERATURE])
@@ -125,6 +129,7 @@ class PlejdClimate(PlejdDeviceBaseEntity, ClimateEntity):
             case _:
                 return ClimateConst.PRESET_NONE
 
+    @plejd_command
     async def async_set_preset_mode(self, preset_mode):
         mode = {
             ClimateConst.PRESET_AWAY: self.device.MODE_VACATION,

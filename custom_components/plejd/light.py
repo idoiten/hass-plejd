@@ -6,7 +6,7 @@ from homeassistant.core import callback, HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity
+from .plejd_entity import PlejdDeviceBaseEntity, plejd_command
 
 
 async def async_setup_entry(
@@ -73,6 +73,7 @@ class PlejdLight(PlejdDeviceBaseEntity, LightEntity):
             return ColorMode.BRIGHTNESS
         return ColorMode.ONOFF
 
+    @plejd_command
     async def async_turn_on(
         self,
         brightness: int | None = None,
@@ -84,6 +85,7 @@ class PlejdLight(PlejdDeviceBaseEntity, LightEntity):
         ct = 1e6 / color_temp_kelvin if color_temp_kelvin else color_temp
         await self.device.turn_on(brightness, ct)
 
+    @plejd_command
     async def async_turn_off(self, **_) -> None:
         """Turn the light off."""
         await self.device.turn_off()

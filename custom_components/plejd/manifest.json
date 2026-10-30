@@ -22,8 +22,8 @@
     "pyplejd"
   ],
   "requirements": [
-    "pyplejd @ https://github.com/idoiten/pyplejd/archive/dd45b84af7c57ec4a1d831b6e8ed2bd6a6b32881.zip",
+    "pyplejd @ https://github.com/idoiten/pyplejd/archive/20b361b440c45da72f317a18405e3de7e9894c73.zip",
     "pydantic"
   ],
-  "version": "0.22.1"
+  "version": "0.22.2"
 }

@@ -7,7 +7,7 @@ from homeassistant.core import callback, HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity
+from .plejd_entity import PlejdDeviceBaseEntity, plejd_command
 
 
 async def async_setup_entry(
@@ -70,15 +70,19 @@ class PlejdCover(PlejdDeviceBaseEntity, CoverEntity):
             return False
         return self._data.get("opening")
 
+    @plejd_command
     async def async_open_cover(self, **kwargs: Any) -> None:
         await self.device.open()
 
+    @plejd_command
     async def async_close_cover(self, **kwargs: Any) -> None:
         await self.device.close()
 
+    @plejd_command
     async def async_stop_cover(self, **kwargs: Any) -> None:
         await self.device.stop()
 
+    @plejd_command
     async def async_set_cover_position(
         self, position: int | None = None, **kwargs: Any
     ) -> None:

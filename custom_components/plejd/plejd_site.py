@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 import logging
+import time
 from typing import cast, Callable
 from collections import defaultdict
 
@@ -28,6 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SITE_DATA_STORE_KEY = "plejd_site_data"
 SITE_DATA_STORE_VERSION = 1
+RECONNECT_THROTTLE = 30  # seconds
 
 
 class PlejdSite:
@@ -61,6 +63,7 @@ class PlejdSite:
 
         self.started = False
         self.stopping = False
+        self._last_reconnect = 0.0
 
         self.add_device_callbacks = defaultdict(list)
 
@@ -192,12 +195,24 @@ class PlejdSite:
         )
         if connect and new_device:
             self.hass.async_create_task(self._ping())
+        elif connect and self._reconnect_due():
+            self.hass.async_create_task(self._ping(retry=False))
 
-    async def _ping(self, *_) -> None:
+    def _reconnect_due(self) -> bool:
+        """Check if an advertisement should trigger a reconnection attempt."""
+        if self.stopping or not self.started or self.manager.connected:
+            return False
+        now = time.monotonic()
+        if now - self._last_reconnect < RECONNECT_THROTTLE:
+            return False
+        self._last_reconnect = now
+        return True
+
+    async def _ping(self, *_, retry: bool = True) -> None:
         """Ping the plejd mesh to connect or maintain the connection."""
         if self.stopping or not self.started:
             return
-        if not await self.manager.ping():
+        if not await self.manager.ping(retry=retry):
             _LOGGER.debug("Ping failed")
 
     async def _broadcast_time(self, *_) -> None:

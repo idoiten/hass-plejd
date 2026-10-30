@@ -1,12 +1,30 @@
 """Plejd entity helpers."""
 
+from functools import wraps
+
 from homeassistant.core import callback, HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers import device_registry as dr
 from homeassistant.const import EntityCategory
 
+from pyplejd import WriteError
+
 from .const import DOMAIN, MANUFACTURER
 from .plejd_site import dt
+
+
+def plejd_command(func):
+    """Report a command that did not reach the mesh as a failed action."""
+
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except WriteError as err:
+            raise HomeAssistantError(str(err)) from err
+
+    return wrapper
 
 
 def device_info(hass: HomeAssistant, device: dt.PlejdDevice, config_entry_id: str):

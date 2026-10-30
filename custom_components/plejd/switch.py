@@ -7,7 +7,11 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.const import EntityCategory
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity, PlejdDeviceDiagnosticEntity
+from .plejd_entity import (
+    PlejdDeviceBaseEntity,
+    PlejdDeviceDiagnosticEntity,
+    plejd_command,
+)
 
 
 async def async_setup_entry(
@@ -52,10 +56,12 @@ class PlejdSwitch(PlejdDeviceBaseEntity, SwitchEntity):
         """Returns true if switch is on."""
         return self._data.get("state", False)
 
+    @plejd_command
     async def async_turn_on(self, **_) -> None:
         """Turn the switch on."""
         await self.device.turn_on()
 
+    @plejd_command
     async def async_turn_off(self, **_) -> None:
         """Turn the switch off."""
         await self.device.turn_off()

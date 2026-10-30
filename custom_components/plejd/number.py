@@ -8,7 +8,7 @@ from homeassistant.core import callback, HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity
+from .plejd_entity import PlejdDeviceBaseEntity, plejd_command
 
 
 async def async_setup_entry(
@@ -48,5 +48,6 @@ class PlejdPWMClimate(PlejdDeviceBaseEntity, NumberEntity):
     def native_value(self) -> float | None:
         return self._data.get("target", None)
 
+    @plejd_command
     async def async_set_native_value(self, value: float) -> None:
         await self.device.set_target_temp(value)

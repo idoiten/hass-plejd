@@ -6,7 +6,7 @@ from homeassistant.util import Throttle
 from homeassistant.core import callback, HomeAssistant
 
 from .plejd_site import dt, get_plejd_site_from_config_entry, PlejdSite
-from .plejd_entity import PlejdDeviceBaseEntity
+from .plejd_entity import PlejdDeviceBaseEntity, plejd_command
 
 SCENE_ACTIVATION_RATE_LIMIT = timedelta(seconds=2)
 
@@ -46,6 +46,7 @@ class PlejdSceneEntity(PlejdDeviceBaseEntity, BaseScene):
         """Return the name of the scene entity."""
         return self.device.name
 
+    @plejd_command
     async def _async_activate(self, **_) -> None:
         """Activate the scene"""
         await self.device.activate()
